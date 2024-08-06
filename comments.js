@@ -1,26 +1,20 @@
 //Сreate web server
-const express = require('express');
-const app = express();
-const bodyParser = require('body-parser');
-const fs = require('fs');
+var http = require('http');
+var fs = require('fs');
 
-app.use(bodyParser.urlencoded({ extended: true }));
+http.createServer(function (req, res) {
+    console.log('request ', req.url);
 
-app.get('/comments', (req, res) => {
-    res.sendFile(__dirname + '/comments.html');
-});
-
-app.post('/comments', (req, res) => {
-    let comment = req.body.comment;
-    let name = req.body.name;
-    let email = req.body.email;
-    let data = fs.readFileSync('comments.json');
-    let json = JSON.parse(data);
-    json.push({ name: name, email: email, comment: comment });
-    fs.writeFileSync('comments.json', JSON.stringify(json));
-    res.send('Your comment has been submitted!');
-});
-
-app.listen(3000, () => {
-    console.log('Server running on http://localhost:3000');
+    var file = req.url == '/' ? '/index.html' : req.url;
+    fs.readFile(__dirname + file, function (err, data) {
+        if (err) {
+            res.writeHead(404);
+            res.end(JSON.stringify(err));
+            return;
+        }
+        res.writeHead(200);
+        res.end(data);
+    });
+}).listen(3000, function () {
+    console.log('server is running on http://localhost:3000/');
 });
