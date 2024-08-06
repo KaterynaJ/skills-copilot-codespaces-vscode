@@ -1,20 +1,19 @@
-//Сreate web server
+// Сreate web server and return comments in JSON format
 var http = require('http');
 var fs = require('fs');
 
+// Create server
 http.createServer(function (req, res) {
-    console.log('request ', req.url);
-
-    var file = req.url == '/' ? '/index.html' : req.url;
-    fs.readFile(__dirname + file, function (err, data) {
+    // Read file with comments
+    fs.readFile('comments.json', 'utf8', function (err, data) {
         if (err) {
-            res.writeHead(404);
-            res.end(JSON.stringify(err));
+            console.log('Error: ' + err);
             return;
         }
-        res.writeHead(200);
+        // Send comments in JSON format
+        res.writeHead(200, {'Content-Type': 'application/json'});
         res.end(data);
     });
-}).listen(3000, function () {
-    console.log('server is running on http://localhost:3000/');
-});
+}).listen(8080);
+
+console.log('Server running on port 8080.');
