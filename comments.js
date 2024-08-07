@@ -1,66 +1,25 @@
-// Сreate web server
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-const url = require('url');
+// Create web server
+const express = require('express');
+const app = express();
 
-const comments = require('./comments');
+// Create a static web server
+app.use(express.static('public'));
 
-const server = http.createServer((req, res) => {
-  const urlParsed = url.parse(req.url, true);
-
-  switch (urlParsed.pathname) {
-    case '/':
-      sendFile('index.html', res);
-      break;
-
-    case '/comments':
-      comments.getComments((err, data) => {
-        if (err) {
-          res.statusCode = 500;
-          res.end('Server error');
-          return;
-        }
-        res.end(JSON.stringify(data));
-      });
-      break;
-
-    case '/submit':
-      let body = '';
-      req
-        .on('data', (chunk) => {
-          body += chunk.toString();
-        })
-        .on('end', () => {
-          const data = JSON.parse(body);
-          comments.addComment(data, (err) => {
-            if (err) {
-              res.statusCode = 500;
-              res.end('Server error');
-              return;
-            }
-            res.end('Ok');
-          });
-        });
-      break;
-
-    default:
-      res.statusCode = 404;
-      res.end('Not found');
-  }
+// Create a route
+app.get('/comments', (req, res) => {
+  res.send('This is a route for comments');
 });
 
-server.listen(3000, () => {
-  console.log('Server started');
+// Create a route for a specific comment
+app.get('/comments/:id', (req, res) => {
+  res.send(`This is a route for comment ${req.params.id}`);
 });
 
-function sendFile(fileName, res) {
-  const fileStream = fs.createReadStream(path.join(__dirname, fileName));
-  fileStream.pipe(res);
+// Start the server
+app.listen(3000, () => {
+  console.log('Server is running on http://localhost:3000');
+});
 
-  fileStream.on('error', (err) => {
-    res.statusCode = 500;
-    res.end('Server error');
-    console.error(err);
-  });
-}
+// Run the server with node comments.js
+// Access the server in the browser with http://localhost:3000
+
